@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Контроль проекта 1С | РП на стороне заказчика</title>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0D1B2A;
+    --navy-mid: #1A2D42;
+    --navy-light: #243B55;
+    --amber: #D4870A;
+    --amber-light: #F0A824;
+    --amber-pale: #FDF3E0;
+    --white: #FFFFFF;
+    --gray-light: #F7F8FA;
+    --gray-mid: #E8ECF0;
+    --gray-text: #6B7A8D;
+    --text-dark: #0D1B2A;
+    --text-body: #334155;
+    --danger: #C13B3B;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Onest', sans-serif; color: var(--text-body); background: var(--white); font-size: 16px; line-height: 1.7; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(13,27,42,0.96); backdrop-filter: blur(8px); }
+  .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav-logo { color: var(--white); font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .nav-logo span { color: var(--amber-light); }
+  .nav-cta { background: var(--amber); color: #FFFFFF !important; border: none; padding: 10px 22px; border-radius: 6px; font-family: 'Onest', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+  .nav-cta:hover { background: var(--amber-light); }
+
+  /* HERO */
+  .hero { background: var(--navy); min-height: 100vh; display: flex; align-items: center; padding: 100px 24px 80px; }
+  .hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 420px; gap: 80px; align-items: center; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(212,135,10,0.15); border: 1px solid rgba(212,135,10,0.35); color: var(--amber-light); padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 500; margin-bottom: 28px; }
+  .hero-badge::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--amber-light); }
+  h1 { font-family: 'Playfair Display', serif; color: var(--white); font-size: clamp(32px, 4vw, 52px); line-height: 1.15; margin-bottom: 24px; }
+  h1 em { color: var(--amber-light); font-style: normal; }
+  .hero-sub { color: rgba(255,255,255,0.65); font-size: 18px; line-height: 1.7; margin-bottom: 40px; }
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  /* КНОПКИ — цвет явно задан чтобы Tilda не перебивала */
+  .btn-primary { background: var(--amber); color: #FFFFFF !important; border: none; padding: 16px 32px; border-radius: 8px; font-family: 'Onest', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; text-decoration: none !important; display: inline-block; }
+  .btn-primary:hover { background: var(--amber-light); color: #FFFFFF !important; }
+  .btn-outline { background: transparent; color: #FFFFFF !important; border: 1.5px solid rgba(255,255,255,0.5); padding: 16px 32px; border-radius: 8px; font-family: 'Onest', sans-serif; font-size: 16px; font-weight: 500; cursor: pointer; transition: border-color 0.2s; text-decoration: none !important; display: inline-block; }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.9); color: #FFFFFF !important; }
+
+  .hero-card { background: var(--navy-mid); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px; }
+  .hero-stat { padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .hero-stat:last-child { border-bottom: none; padding-bottom: 0; }
+  .stat-num { font-size: 42px; font-weight: 700; color: var(--amber-light); line-height: 1; margin-bottom: 6px; }
+  .stat-label { color: rgba(255,255,255,0.55); font-size: 14px; }
+
+  /* SECTIONS */
+  section { padding: 96px 24px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-tag { font-size: 13px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  h2 { font-size: clamp(26px, 3.5vw, 40px); font-weight: 700; color: var(--text-dark); line-height: 1.2; margin-bottom: 20px; }
+  h2 em { color: var(--amber); font-style: normal; }
+  .section-lead { font-size: 18px; color: var(--gray-text); max-width: 680px; }
+
+  /* БАННЕР УПП */
+  .upp-banner { background: linear-gradient(135deg, #1A2D42 0%, #243B55 100%); border-left: 4px solid var(--amber); border-radius: 12px; padding: 24px 32px; display: flex; align-items: flex-start; gap: 20px; margin-top: 48px; }
+  .upp-banner-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+  .upp-banner-title { font-size: 16px; font-weight: 700; color: var(--amber-light); margin-bottom: 8px; }
+  .upp-banner-text { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+
+  /* PROBLEM */
+  .problem { background: var(--gray-light); }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-top: 56px; }
+  .stat-card { background: var(--white); border-radius: 12px; padding: 28px; border-top: 3px solid var(--danger); }
+  .stat-card .num { font-size: 48px; font-weight: 700; color: var(--danger); line-height: 1; margin-bottom: 10px; }
+  .stat-card .desc { font-size: 15px; color: var(--text-body); line-height: 1.5; }
+  .stat-card .source { font-size: 12px; color: var(--gray-text); margin-top: 12px; }
+
+  /* ПРИЧИНЫ ПРОВАЛОВ */
+  .reasons { background: var(--navy); }
+  .reasons h2, .reasons .section-tag { color: var(--white); }
+  .reasons h2 em { color: var(--amber-light); }
+  .reasons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 56px; }
+  .reason-item { background: var(--navy-mid); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 28px; }
+  .reason-num { font-size: 36px; font-weight: 700; color: rgba(212,135,10,0.4); font-variant-numeric: tabular-nums; margin-bottom: 12px; }
+  .reason-title { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+  .reason-text { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+  /* УСЛУГИ */
+  .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 56px; }
+  .service-card { border: 1.5px solid var(--gray-mid); border-radius: 16px; padding: 40px; position: relative; overflow: hidden; }
+  .service-card.featured { border-color: var(--amber); }
+  .service-badge { position: absolute; top: 20px; right: 20px; background: var(--amber-pale); color: var(--amber); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 100px; }
+  .service-icon { width: 52px; height: 52px; border-radius: 12px; background: var(--amber-pale); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+  .service-title { font-size: 22px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+  .service-desc { color: var(--text-body); margin-bottom: 28px; font-size: 15px; }
+  .service-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .service-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--text-body); }
+  .service-list li::before { content: ''; display: inline-block; width: 18px; height: 18px; min-width: 18px; border-radius: 50%; background: var(--amber-pale); position: relative; top: 3px; }
+  .service-list li::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M4 9l3.5 3.5L14 6' stroke='%23D4870A' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-size: 18px; background-color: var(--amber-pale); }
+  .service-price { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--gray-mid); }
+  .service-price .label { font-size: 13px; color: var(--gray-text); margin-bottom: 6px; }
+  .service-price .price { font-size: 20px; font-weight: 700; color: var(--text-dark); }
+
+  /* БЛОК ЦЕННОСТИ (ROI) */
+  .value-section { background: var(--navy); padding: 96px 24px; }
+  .value-section .section-tag { color: var(--amber); }
+  .value-section h2 { color: var(--white); }
+  .value-section h2 em { color: var(--amber-light); }
+  .value-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 56px; }
+  .value-card { background: var(--navy-mid); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 36px; }
+  .value-card.highlight { border-color: var(--amber); position: relative; }
+  .value-card.highlight::before { content: 'Ключевой аргумент'; position: absolute; top: -12px; left: 28px; background: var(--amber); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 12px; border-radius: 100px; letter-spacing: 0.5px; }
+  .value-icon { font-size: 32px; margin-bottom: 20px; }
+  .value-title { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 12px; }
+  .value-text { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; }
+  .value-accent { color: var(--amber-light); font-weight: 600; }
+
+  /* КАК РАБОТАЕМ */
+  .process { background: var(--gray-light); }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; margin-top: 56px; position: relative; }
+  .steps::before { content: ''; position: absolute; top: 28px; left: 10%; right: 10%; height: 2px; background: var(--gray-mid); z-index: 0; }
+  .step { text-align: center; padding: 0 16px; position: relative; z-index: 1; }
+  .step-num { width: 56px; height: 56px; border-radius: 50%; background: var(--amber); color: var(--white); font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .step-title { font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; }
+  .step-text { font-size: 13px; color: var(--gray-text); }
+
+  /* ПРЕИМУЩЕСТВА */
+  .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 56px; }
+  .benefit { padding: 28px; border-left: 3px solid var(--amber); background: var(--white); border-radius: 0 12px 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .benefit-title { font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 10px; }
+  .benefit-text { font-size: 14px; color: var(--text-body); line-height: 1.6; }
+
+  /* CTA */
+  .cta-section { background: var(--navy); text-align: center; }
+  .cta-section h2 { color: var(--white); }
+  .cta-section .section-lead { color: rgba(255,255,255,0.55); margin: 0 auto 48px; }
+  .form-wrap { background: var(--navy-mid); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 48px; max-width: 600px; margin: 0 auto; text-align: left; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .form-group label { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; }
+  .form-group input, .form-group select, .form-group textarea { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px 16px; color: var(--white); font-family: 'Onest', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--amber); }
+  .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+  .form-group select option { background: var(--navy); color: var(--white); }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+  .form-submit { width: 100%; background: var(--amber); color: #FFFFFF !important; border: none; padding: 16px; border-radius: 8px; font-family: 'Onest', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+  .form-submit:hover { background: var(--amber-light); }
+  .form-note { font-size: 12px; color: rgba(255,255,255,0.3); text-align: center; margin-top: 14px; }
+
+  /* FOOTER */
+  footer { background: var(--navy); border-top: 1px solid rgba(255,255,255,0.06); padding: 32px 24px; }
+  .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-logo { color: var(--white); font-size: 16px; font-weight: 600; }
+  .footer-logo span { color: var(--amber-light); }
+  .footer-copy { font-size: 13px; color: rgba(255,255,255,0.3); }
+  .footer-email { display: inline-flex; align-items: center; gap: 8px; color: var(--amber-light) !important; text-decoration: none !important; font-size: 14px; font-weight: 500; border: 1px solid rgba(240,168,36,0.3); padding: 8px 16px; border-radius: 6px; transition: border-color 0.2s, background 0.2s; }
+  .footer-email:hover { border-color: var(--amber-light); background: rgba(240,168,36,0.08); }
+
+  /* SUCCESS */
+  .success-msg { display: none; text-align: center; padding: 40px; }
+  .success-msg .icon { font-size: 48px; margin-bottom: 16px; }
+  .success-msg h3 { color: var(--white); font-size: 22px; margin-bottom: 10px; }
+  .success-msg p { color: rgba(255,255,255,0.55); }
+
+  @media (max-width: 768px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+    .hero-card { display: grid; grid-template-columns: 1fr 1fr; }
+    .hero-stat { border-bottom: none; border-right: 1px solid rgba(255,255,255,0.07); padding: 16px; }
+    .hero-stat:nth-child(even) { border-right: none; }
+    .services-grid { grid-template-columns: 1fr; }
+    .value-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .steps::before { display: none; }
+    .steps { gap: 32px; }
+    .footer-inner { flex-direction: column; text-align: center; }
+    .upp-banner { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">Проект<span>Контроль</span></div>
+    <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Оставить заявку</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">Для компаний, внедряющих 1С ERP</div>
+      <h1>Ваш проект 1С под <em>профессиональным контролем</em></h1>
+      <p class="hero-sub">Внедряете 1С ERP, но некому управлять проектом со стороны вашей компании? Мы берём на себя роль руководителя проекта — контролируем подрядчика, сроки и бюджет.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'}); return false;">Обсудить проект</a>
+        <a href="#services" class="btn-outline" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'}); return false;">Наши услуги</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-stat">
+        <div class="stat-num">75%</div>
+        <div class="stat-label">ERP-проектов выходят за рамки бюджета или сроков</div>
+      </div>
+      <div class="hero-stat">
+        <div class="stat-num">2×</div>
+        <div class="stat-label">Среднее превышение бюджета без профессионального управления</div>
+      </div>
+      <div class="hero-stat">
+        <div class="stat-num">40%</div>
+        <div class="stat-label">Проектов не достигают заявленных функциональных целей</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПРОБЛЕМА -->
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="section-tag">Почему проекты 1С проваливаются</div>
+    <h2>Внедрение 1С — это сложный <em>ИТ-проект</em></h2>
+    <p class="section-lead">Большинство компаний среднего бизнеса не имеют в штате опытного руководителя проекта по ИТ-внедрениям. В результате управление проектом ложится на технического директора или финансового директора, у которых нет ни времени, ни специфической экспертизы.</p>
+
+    <!-- БАННЕР: КОНЕЦ ПОДДЕРЖКИ 1С:УПП -->
+    <div class="upp-banner">
+      <div class="upp-banner-icon">⚠️</div>
+      <div>
+        <div class="upp-banner-title">Актуально прямо сейчас: завершается поддержка 1С:УПП</div>
+        <div class="upp-banner-text">
+          Фирма «1С» прекратила активное развитие платформы 1С:Управление производственным предприятием (УПП). Для многих компаний вопрос миграции на 1С ERP или 1С:Комплексную автоматизацию стал неизбежным.
+          Переход — это полноценный ERP-проект со всеми рисками: новая архитектура, перенос данных, перестройка процессов, обучение персонала. Именно в таких проектах отсутствие профессионального РП на стороне заказчика обходится дороже всего.
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="num">75%</div>
+        <div class="desc">ERP-проектов в мире реализуются с превышением бюджета или сроков</div>
+        <div class="source">Источник: Gartner Research</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">55%</div>
+        <div class="desc">Проектов не запускаются в срок из-за слабого управления изменениями</div>
+        <div class="source">Источник: McKinsey Digital</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">33%</div>
+        <div class="desc">IT-проектов завершаются в срок, в бюджет и с полным функционалом</div>
+        <div class="source">Источник: Standish Group CHAOS Report</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">180%</div>
+        <div class="desc">Максимальное зафиксированное превышение бюджета при отсутствии профессионального РП</div>
+        <div class="source">Источник: PMI Pulse of the Profession</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПРИЧИНЫ ПРОВАЛОВ -->
+<section class="reasons">
+  <div class="container">
+    <div class="section-tag">Корневые причины</div>
+    <h2>Почему проекты 1С идут не так, как <em>планировалось</em></h2>
+    <div class="reasons-grid">
+      <div class="reason-item">
+        <div class="reason-num">01</div>
+        <div class="reason-title">Нет РП на стороне заказчика</div>
+        <div class="reason-text">Подрядчик преследует свои интересы. Без вашего профессионального представителя никто не защищает ваши деньги, сроки и требования.</div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-num">02</div>
+        <div class="reason-title">Размытые требования</div>
+        <div class="reason-text">Бизнес-требования не зафиксированы, постоянно меняются. Подрядчик выставляет счета за доработки, а объём работ растёт.</div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-num">03</div>
+        <div class="reason-title">Слабое управление рисками</div>
+        <div class="reason-text">Критические риски не идентифицированы заранее. Проблемы обнаруживаются поздно, когда их устранение уже дорого.</div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-num">04</div>
+        <div class="reason-title">Низкая вовлечённость команды</div>
+        <div class="reason-text">Ключевые пользователи не участвуют в проекте. Система запускается, но не принимается — люди работают в старом формате.</div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-num">05</div>
+        <div class="reason-title">Нет контроля качества</div>
+        <div class="reason-text">Результаты работ подрядчика не проверяются. Проблемы системы обнаруживаются уже после запуска в промышленную эксплуатацию.</div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-num">06</div>
+        <div class="reason-title">Давление на сроки</div>
+        <div class="reason-text">Подрядчик торопится сдать проект. Компромиссы в качестве накапливаются и оборачиваются дорогостоящей поддержкой после запуска.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- УСЛУГИ -->
+<section id="services" style="background: var(--white);">
+  <div class="container">
+    <div class="section-tag">Наши услуги</div>
+    <h2>Два формата работы — <em>вы выбираете</em></h2>
+    <p class="section-lead">Мы работаем исключительно на стороне заказчика, не являясь партнёром подрядчиков по 1С. Это гарантирует независимость нашей оценки.</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 4L4 9v10l10 5 10-5V9L14 4z" stroke="#D4870A" stroke-width="1.8" fill="none"/><path d="M14 4v15M4 9l10 5 10-5" stroke="#D4870A" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="service-title">Консалтинг по управлению проектом</div>
+        <div class="service-desc">Аудит и сопровождение вашего проекта внедрения 1С. Мы контролируем качество работ подрядчика, защищаем ваши интересы и предупреждаем риски.</div>
+        <ul class="service-list">
+          <li>Аудит текущего состояния проекта и плана подрядчика</li>
+          <li>Экспертиза технического задания и проектной документации</li>
+          <li>Контроль качества поставляемых решений и тестирования</li>
+          <li>Еженедельные отчёты о ходе проекта для руководства</li>
+          <li>Сопровождение переговоров с подрядчиком</li>
+          <li>Независимая оценка рисков и рекомендации</li>
+          <li>Протоколирование всех договорённостей с помощью ИИ — ни одно решение не остаётся незафиксированным</li>
+          <li>Подготовка мотивированного отказа в приёмке работ, если результат не соответствует условиям договора</li>
+        </ul>
+        <div class="service-price">
+          <div class="label">Стоимость</div>
+          <div class="price">По договорённости · частичная занятость</div>
+        </div>
+      </div>
+      <div class="service-card featured">
+        <div class="service-badge">Популярный формат</div>
+        <div class="service-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="#D4870A" stroke-width="1.8"/><path d="M5 24c0-4.4 4-8 9-8s9 3.6 9 8" stroke="#D4870A" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="service-title">Аутстафф РП — ваш менеджер проекта</div>
+        <div class="service-desc">Опытный руководитель проекта становится частью вашей команды на период внедрения. Полная ответственность за результат с вашей стороны.</div>
+        <ul class="service-list">
+          <li>Полное управление проектом со стороны заказчика</li>
+          <li>Постановка задач подрядчику и приёмка результатов</li>
+          <li>Управление бюджетом, сроками и рисками проекта</li>
+          <li>Организация рабочих групп и обучения пользователей</li>
+          <li>Управление изменениями в бизнес-процессах</li>
+          <li>Сдача проекта в промышленную эксплуатацию</li>
+          <li>Протоколирование всех договорённостей с помощью ИИ — ни одно решение не остаётся незафиксированным</li>
+          <li>Подготовка мотивированного отказа в приёмке при некачественном выполнении работ</li>
+        </ul>
+        <div class="service-price">
+          <div class="label">Стоимость</div>
+          <div class="price">По договорённости · частичная занятость</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- СТОИМОСТЬ ОШИБКИ / ROI -->
+<section class="value-section">
+  <div class="container">
+    <div class="section-tag">Цена вопроса</div>
+    <h2>Почему это <em>выгодная инвестиция</em>, а не расход</h2>
+    <p class="section-lead" style="color: rgba(255,255,255,0.55);">Стоимость профессионального РП несопоставима с потерями, которые возникают при его отсутствии.</p>
+    <div class="value-grid">
+      <div class="value-card highlight">
+        <div class="value-icon">🚨</div>
+        <div class="value-title">Первый день в «бою» — самый дорогой</div>
+        <div class="value-text">
+          Запуск системы в промышленную эксплуатацию без грамотного сопровождения — это риск остановки бизнес-процессов в реальном времени.
+          <br><br>
+          <span class="value-accent">Один день простоя — это:</span> сорванные отгрузки, нарушенные обязательства перед клиентами, репутационные потери, кризис доверия сотрудников к новой системе.
+          <br><br>
+          Стоимость таких потерь для среднего бизнеса несопоставима со стоимостью услуг профессионального РП за весь проект.
+        </div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🛡️</div>
+        <div class="value-title">Защита бюджета на каждом этапе</div>
+        <div class="value-text">
+          Подрядчик заинтересован в расширении scope и дополнительных работах. Без вашего представителя каждое «небольшое изменение» превращается в неконтролируемый рост затрат.
+          <br><br>
+          <span class="value-accent">РП на вашей стороне:</span> фиксирует все договорённости, контролирует соответствие работ ТЗ и при необходимости формирует мотивированный отказ в подписании акта — до того, как деньги ушли.
+        </div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">📋</div>
+        <div class="value-title">Каждая договорённость зафиксирована</div>
+        <div class="value-text">
+          Устные решения на совещаниях — главный источник споров с подрядчиком. «Мы об этом не договаривались» — самая дорогая фраза в IT-проекте.
+          <br><br>
+          <span class="value-accent">Мы используем ИИ-протоколирование:</span> каждое совещание, каждое согласованное решение фиксируется и доступно в структурированном виде. Ни одна договорённость не потеряется и не будет оспорена.
+        </div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">⚖️</div>
+        <div class="value-title">Юридически грамотная приёмка</div>
+        <div class="value-text">
+          Подрядчик выставляет акт — значит, требует оплаты. Подписать его «на доверии», не проверив соответствие результатов договору, — распространённая и дорогостоящая ошибка.
+          <br><br>
+          <span class="value-accent">Мы готовим мотивированный отказ</span> в строгие сроки, опираясь на условия договора и зафиксированные требования — так, чтобы вы могли не платить за работу, которая не выполнена должным образом.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- КАК РАБОТАЕМ -->
+<section class="process" id="process">
+  <div class="container">
+    <div class="section-tag">Процесс работы</div>
+    <h2>Как мы начинаем <em>сотрудничество</em></h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Диагностика</div>
+        <div class="step-text">Бесплатная встреча, изучаем ситуацию по проекту и ваши задачи</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Аудит</div>
+        <div class="step-text">Погружаемся в проектную документацию, оцениваем риски и зрелость управления</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Предложение</div>
+        <div class="step-text">Формируем конкретный план работ, формат и стоимость под вашу ситуацию</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-title">Старт</div>
+        <div class="step-text">Подписываем договор, включаемся в проект и начинаем работать</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПРЕИМУЩЕСТВА -->
+<section style="background: var(--white);">
+  <div class="container">
+    <div class="section-tag">Почему мы</div>
+    <h2>Что отличает нас от <em>подрядчиков по 1С</em></h2>
+    <div class="benefits-grid">
+      <div class="benefit">
+        <div class="benefit-title">Мы работаем только на вас</div>
+        <div class="benefit-text">Мы не являемся партнёром 1С и не связаны ни с одним из подрядчиков. Наш интерес — ваш успешный проект, а не объём работ исполнителя.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Опыт на стороне заказчика</div>
+        <div class="benefit-text">Мы знаем, как работают подрядчики, изнутри — и умеем задавать правильные вопросы, находить слабые места и защищать ваши интересы.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Частичная занятость — экономия</div>
+        <div class="benefit-text">Нет смысла держать штатного РП весь год. Мы подключаемся на нужный объём — от 10 до 40 часов в месяц, исходя из стадии проекта.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Прозрачная отчётность</div>
+        <div class="benefit-text">Руководство компании получает регулярные отчёты на понятном языке: статус проекта, риски, решения и следующие шаги.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Быстрый старт</div>
+        <div class="benefit-text">Включаемся в действующий проект за 1–2 недели. Даже если проект уже идёт — мы найдём точки входа и зоны для улучшения.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Специализация на 1С</div>
+        <div class="benefit-text">1С ERP, 1С УХ, 1С:КА, 1С:УТ, 1С:Бухгалтерия КОРП — мы знаем специфику этих продуктов и типовые проблемы, с которыми сталкиваются проекты внедрения.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ФОРМА -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <div class="section-tag" style="color: var(--amber-light);">Оставить заявку</div>
+    <h2>Обсудим ваш проект</h2>
+    <p class="section-lead">Расскажите о своей ситуации — и мы проведём бесплатную диагностическую встречу, чтобы понять, чем можем помочь.</p>
+    <div class="form-wrap">
+      <div id="form-content">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pm1c-name">Ваше имя *</label>
+            <input type="text" id="pm1c-name" name="pm1c-name" placeholder="Иван Петров">
+          </div>
+          <div class="form-group">
+            <label for="pm1c-position">Должность</label>
+            <input type="text" id="pm1c-position" name="pm1c-position" placeholder="Директор по ИТ">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pm1c-company">Компания *</label>
+            <input type="text" id="pm1c-company" name="pm1c-company" placeholder="ООО «Компания»">
+          </div>
+          <div class="form-group">
+            <label for="pm1c-contact">Телефон или email *</label>
+            <input type="text" id="pm1c-contact" name="pm1c-contact" placeholder="+7 (900) 000-00-00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="pm1c-product">Что внедряете</label>
+          <select id="pm1c-product" name="pm1c-product">
+            <option value="">Выберите продукт 1С</option>
+            <option>1С:ERP Управление предприятием</option>
+            <option>1С:Комплексная автоматизация</option>
+            <option>1С:Управление торговлей</option>
+            <option>1С:УХ (Управление холдингом)</option>
+            <option>1С:Бухгалтерия КОРП</option>
+            <option>Переход с 1С:УПП</option>
+            <option>Другой продукт 1С</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pm1c-message">Расскажите о проекте</label>
+          <textarea id="pm1c-message" name="pm1c-message" placeholder="На какой стадии проект? Есть ли подрядчик? Какая основная проблема или вопрос?"></textarea>
+        </div>
+        <button class="form-submit" onclick="pm1cSubmitForm()">Отправить заявку →</button>
+        <p class="form-note">Ответим в течение 1 рабочего дня. Данные не передаются третьим лицам.</p>
+      </div>
+      <div class="success-msg" id="pm1c-success-msg">
+        <div class="icon">✓</div>
+        <h3>Заявка отправлена!</h3>
+        <p>Мы свяжемся с вами в течение 1 рабочего дня, чтобы назначить диагностическую встречу.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Проект<span>Контроль</span></div>
+    <a href="mailto:PM1C-Business@ya.ru" class="footer-email">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="1" y="3" width="14" height="10" rx="2" stroke="#F0A824" stroke-width="1.4"/>
+        <path d="M1 5l7 5 7-5" stroke="#F0A824" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      PM1C-Business@ya.ru
+    </a>
+    <div class="footer-copy">© 2025 · Консалтинг по управлению проектами 1С</div>
+  </div>
+</footer>
+
+<script>
+function pm1cSubmitForm() {
+  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxH81PbYHjZHCRg9OKTFvsw-a22DOLraIXH8cJxO-cGt1AQF3d_FG6qay2Z-b1wnO-G/exec";
+
+  const name     = document.getElementById('pm1c-name').value.trim();
+  const company  = document.getElementById('pm1c-company').value.trim();
+  const contact  = document.getElementById('pm1c-contact').value.trim();
+  const position = document.getElementById('pm1c-position').value.trim();
+  const product  = document.getElementById('pm1c-product').value;
+  const message  = document.getElementById('pm1c-message').value.trim();
+
+  if (!name || !company || !contact) {
+    alert('Пожалуйста, заполните обязательные поля: Имя, Компания, Телефон или email');
+    return;
+  }
+
+  const data = {
+    name:      name,
+    company:   company,
+    contact:   contact,
+    position:  position,
+    product:   product,
+    message:   message,
+    timestamp: new Date().toISOString()
+  };
+
+  const btn = document.querySelector('#form-content .form-submit');
+  if (btn) { btn.textContent = 'Отправляем...'; btn.disabled = true; }
+
+  fetch(WEBHOOK_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    document.getElementById('form-content').style.display = 'none';
+    document.getElementById('pm1c-success-msg').style.display = 'block';
+  })
+  .catch(err => {
+    console.error('Ошибка отправки:', err);
+    if (btn) { btn.textContent = 'Отправить заявку →'; btn.disabled = false; }
+    alert('Произошла ошибка. Пожалуйста, напишите нам на PM1C-Business@ya.ru');
+  });
+}
+</script>
+</body>
+</html>
